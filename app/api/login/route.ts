@@ -33,6 +33,7 @@ export async function POST(req: Request, res: Response) {
       where: { id: user.id },
       data: { avatar: `https://i.pravatar.cc/150?img=${user.id}` },
     });
+    user.avatar = `https://i.pravatar.cc/150?img=${user.id}`;
     await login(body, user.id);
   }
 
