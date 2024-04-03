@@ -32,3 +32,14 @@ export async function POST(req: Request, res: Response) {
     headers: { "content-type": "application/json" },
   });
 }
+
+export async function OPTIONS(req: Request, res: Response) {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+}
