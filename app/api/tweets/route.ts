@@ -11,6 +11,7 @@ export async function GET(req: Request, res: Response) {
   // save the tweet
   const tweets = await db.post.findMany({
     include: { author: true },
+    orderBy: { createdAt: "desc" },
   });
 
   return new Response(JSON.stringify({ tweets }), {
