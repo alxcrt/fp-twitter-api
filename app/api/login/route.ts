@@ -3,7 +3,7 @@ import { login } from "@/lib";
 import { loginSchema } from "@/schemas";
 import zod from "zod";
 
-export default async function POST(req: Request, res: Response) {
+export async function POST(req: Request, res: Response) {
   const body = await req.json();
 
   try {
@@ -33,5 +33,16 @@ export default async function POST(req: Request, res: Response) {
   return new Response(JSON.stringify({ user }), {
     status: 201,
     headers: { "content-type": "application/json" },
+  });
+}
+
+export async function OPTIONS(req: Request, res: Response) {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
   });
 }
