@@ -15,14 +15,16 @@ datasource db {
 }
 
 model Post {
-  id       Int     @id @default(autoincrement())
-  content  String?
-  author   User?   @relation(fields: [authorId], references: [id])
-  authorId Int?
+  id        Int      @id @default(autoincrement())
+  content   String?
+  author    User?    @relation(fields: [authorId], references: [id])
+  authorId  Int?
+  createdAt DateTime @default(now())
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  posts Post[]
+  id     Int    @id @default(autoincrement())
+  name   String @unique
+  posts  Post[]
+  avatar String @default("https://i.pravatar.cc/150?img=1")
 }

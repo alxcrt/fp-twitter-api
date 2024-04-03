@@ -25,7 +25,13 @@ export async function POST(req: Request, res: Response) {
     await login(body, user.id);
   } else {
     user = await db.user.create({
-      data: { name: body.name },
+      data: {
+        name: body.name,
+      },
+    });
+    await db.user.update({
+      where: { id: user.id },
+      data: { avatar: `https://i.pravatar.cc/150?img=${user.id}` },
     });
     await login(body, user.id);
   }
