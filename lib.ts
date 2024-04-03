@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify } from "jose";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { loginSchemaType } from "./schemas";
 
@@ -23,14 +23,17 @@ export async function decrypt(input: string): Promise<any> {
 
 export async function login(data: loginSchemaType, userId: number) {
   // Verify credentials && get the user
-
   const user = { name: data.name, id: userId };
+
   // Create the session
-  const expires = new Date(Date.now() + 60 * 60 * 5000);
+  const expires = new Date(Date.now() + 60 * 60 * 5000); // 5 hours from now
   const session = await encrypt({ user, expires });
 
-  // Save the session in a cookie
+  // Save the session in a cookie for web clients
   cookies().set("session", session, { expires, httpOnly: true });
+
+  // Also return the session (Bearer token) for clients that prefer handling tokens manually
+  return session;
 }
 
 export async function logout() {
@@ -39,9 +42,22 @@ export async function logout() {
 }
 
 export async function getSession() {
-  const session = cookies().get("session")?.value;
-  if (!session) return null;
-  return await decrypt(session);
+  // Try to get the session from a cookie first
+  let token = cookies().get("session")?.value;
+
+  // If no cookie, try to get the Bearer token from the Authorization header
+  if (!token) {
+    const authHeader = headers().get("Authorization");
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.substring(7, authHeader.length); // Extract the token part
+    }
+  }
+
+  // If no token found by this point, return null
+  if (!token) return null;
+
+  // Decrypt and return the session
+  return await decrypt(token);
 }
 
 export async function updateSession(request: NextRequest) {

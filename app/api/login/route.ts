@@ -21,8 +21,10 @@ export async function POST(req: Request, res: Response) {
     where: { name: body.name },
   });
 
+  let token;
+
   if (user) {
-    await login(body, user.id);
+    token = await login(body, user.id);
   } else {
     user = await db.user.create({
       data: {
@@ -34,10 +36,10 @@ export async function POST(req: Request, res: Response) {
       data: { avatar: `https://i.pravatar.cc/150?img=${user.id}` },
     });
     user.avatar = `https://i.pravatar.cc/150?img=${user.id}`;
-    await login(body, user.id);
+    token = await login(body, user.id);
   }
 
-  return new Response(JSON.stringify({ user }), {
+  return new Response(JSON.stringify({ user, token }), {
     status: 201,
     headers: { "content-type": "application/json" },
   });
