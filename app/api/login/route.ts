@@ -3,7 +3,7 @@ import { login } from "@/lib";
 import { loginSchema } from "@/schemas";
 import zod from "zod";
 
-export async function POST(req: Request, res: Response) {
+export default async function POST(req: Request, res: Response) {
   const body = await req.json();
 
   try {
