@@ -31,6 +31,7 @@ export async function POST(req: Request, res: Response) {
   });
 
   return new Response(JSON.stringify({ tweet }), {
+    status: 201,
     headers: { "content-type": "application/json" },
   });
 }
