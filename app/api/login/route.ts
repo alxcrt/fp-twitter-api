@@ -3,6 +3,8 @@ import { login } from "@/lib";
 import { loginSchema } from "@/schemas";
 import zod from "zod";
 
+export const revalidate = 0;
+
 export async function POST(req: Request, res: Response) {
   const body = await req.json();
 
