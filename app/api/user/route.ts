@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, res: Response) {
 
   const user = await db.user.findFirst({
     where: { name },
-    include: { posts: true },
+    include: { posts: { include: { author: true } } },
   });
 
   return new Response(JSON.stringify({ user }), {
