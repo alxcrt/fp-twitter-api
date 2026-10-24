@@ -20,6 +20,8 @@ for(const headers of [{},{Authorization:'Bearer invalid'},{Authorization:'Bearer
 }
 const still=await (await request('/api/tweets')).json();assert.equal(still.tweets.length,before.tweets.length);
 const stale=await request('/',{headers:{Cookie:'session=invalid'}});assert.equal(stale.status,200);assert.match(stale.headers.get('set-cookie'),/session=;/);
+const html=await stale.text();const assets=[...new Set([...html.matchAll(/(?:src|href)="([^"]+)"/g)].map(m=>m[1]).filter(path=>path.startsWith('/') && /\.(?:css|js|svg|woff2?|ico)(?:\?|$)/.test(path)))];assert.ok(assets.length>0);for(const path of assets)assert.equal((await request(path)).status,200,'Static asset: '+path);
+
 const invalid=await jsonRequest('/api/tweet',{content:'text'},{Authorization:'Bearer '+signed.token});assert.equal(invalid.status,400);
 const post=await jsonRequest('/api/tweet',{content:'🙂'},{Authorization:'Bearer '+signed.token});assert.equal(post.status,201);const created=await post.json();assert.equal(created.tweet.authorId,signed.user.id);
 const tweets=await (await request('/api/tweets?name='+encodeURIComponent(name))).json();assert.ok(tweets.tweets.some(t=>t.id===created.tweet.id));
