@@ -1,79 +1,26 @@
-import { SignJWT, jwtVerify } from "jose";
-import { cookies, headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
-import { loginSchemaType } from "./schemas";
+import {cookies,headers} from 'next/headers';
+import {NextRequest,NextResponse} from 'next/server';
+import type {loginSchemaType} from './schemas';
+import {encrypt,decrypt,sessionFromInputs,lifetimeSeconds} from './session';
+export {encrypt,decrypt};
+const cookieOptions={httpOnly:true,secure:process.env.NODE_ENV==='production',sameSite:'lax' as const,path:'/'};
 
-const secretKey = "secret";
-const key = new TextEncoder().encode(secretKey);
-
-export async function encrypt(payload: any) {
-  return await new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("5 hour from now")
-    .sign(key);
-}
-
-export async function decrypt(input: string): Promise<any> {
-  const { payload } = await jwtVerify(input, key, {
-    algorithms: ["HS256"],
-  });
-  return payload;
-}
-
-export async function login(data: loginSchemaType, userId: number) {
-  // Verify credentials && get the user
-  const user = { name: data.name, id: userId };
-
-  // Create the session
-  const expires = new Date(Date.now() + 60 * 60 * 5000); // 5 hours from now
-  const session = await encrypt({ user, expires });
-
-  // Save the session in a cookie for web clients
-  cookies().set("session", session, { expires, httpOnly: true });
-
-  // Also return the session (Bearer token) for clients that prefer handling tokens manually
+export async function login(data:loginSchemaType,userId:number){
+  // Intentional public course demo: selecting a name is not proof of ownership.
+  const expires=new Date(Date.now()+lifetimeSeconds*1000);
+  const session=await encrypt({name:data.name,id:userId});
+  (await cookies()).set('session',session,{...cookieOptions,expires});
   return session;
 }
-
-export async function logout() {
-  // Destroy the session
-  cookies().set("session", "", { expires: new Date(0) });
-}
-
-export async function getSession() {
-  // Try to get the session from a cookie first
-  let token = cookies().get("session")?.value;
-
-  // If no cookie, try to get the Bearer token from the Authorization header
-  if (!token) {
-    const authHeader = headers().get("Authorization");
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      token = authHeader.substring(7, authHeader.length); // Extract the token part
-    }
-  }
-
-  // If no token found by this point, return null
-  if (!token) return null;
-
-  // Decrypt and return the session
-  return await decrypt(token);
-}
-
-export async function updateSession(request: NextRequest) {
-  const session = request.cookies.get("session")?.value;
-  if (!session) return;
-
-  // Refresh the session so it doesn't expire
-  const parsed = await decrypt(session);
-  // 1 hour from now
-  parsed.expires = new Date(Date.now() + 60 * 60 * 5000);
-  const res = NextResponse.next();
-  res.cookies.set({
-    name: "session",
-    value: await encrypt(parsed),
-    httpOnly: true,
-    expires: parsed.expires,
-  });
-  return res;
+export async function logout(){(await cookies()).set('session','',{...cookieOptions,expires:new Date(0)});}
+export async function getSession(){return sessionFromInputs((await cookies()).get('session')?.value,(await headers()).get('Authorization'));}
+export async function updateSession(request:NextRequest){
+  const token=request.cookies.get('session')?.value;
+  if(!token)return;
+  const session=await decrypt(token);
+  const response=NextResponse.next();
+  if(!session){response.cookies.set('session','',{...cookieOptions,expires:new Date(0)});return response;}
+  const expires=new Date(Date.now()+lifetimeSeconds*1000);
+  response.cookies.set('session',await encrypt(session.user),{...cookieOptions,expires});
+  return response;
 }

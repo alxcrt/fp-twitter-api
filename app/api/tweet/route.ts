@@ -5,7 +5,7 @@ import zod from "zod";
 
 export const revalidate = 0;
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   const session = await getSession();
 
   if (!session) return new Response("Unauthorized", { status: 401 });
@@ -16,7 +16,7 @@ export async function POST(req: Request, res: Response) {
     tweetSchema.parse(body);
   } catch (error) {
     if (error instanceof zod.ZodError)
-      return new Response(JSON.stringify({ error: error.errors }), {
+      return new Response(JSON.stringify({ error: error.issues }), {
         status: 400,
       });
     return new Response(null, { status: 500 });
@@ -36,7 +36,7 @@ export async function POST(req: Request, res: Response) {
   });
 }
 
-export async function OPTIONS(req: Request, res: Response) {
+export async function OPTIONS() {
   return new Response(null, {
     status: 204,
     headers: {
