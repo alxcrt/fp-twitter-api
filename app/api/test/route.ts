@@ -1,6 +1,6 @@
 import { getSession } from "@/lib";
 
-export async function GET(req: Request, res: Response) {
+export async function GET() {
   const session = await getSession();
 
   if (!session) return new Response("Unauthorized", { status: 401 });

@@ -1,13 +1,9 @@
 import { db } from "@/db";
-import { getSession } from "@/lib";
-import { tweetSchema } from "@/schemas";
 import { NextRequest } from "next/server";
-import zod from "zod";
 
 export const revalidate = 0;
 
-export async function GET(req: NextRequest, res: Response) {
-  // const session = await getSession();
+export async function GET(req: NextRequest) {
 
   const searchParams = req.nextUrl.searchParams;
   const name = searchParams.get("name");

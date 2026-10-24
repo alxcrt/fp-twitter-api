@@ -5,14 +5,14 @@ import zod from "zod";
 
 export const revalidate = 0;
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   const body = await req.json();
 
   try {
     loginSchema.parse(body);
   } catch (error) {
     if (error instanceof zod.ZodError)
-      return new Response(JSON.stringify({ error: error.errors }), {
+      return new Response(JSON.stringify({ error: error.issues }), {
         status: 400,
       });
     return new Response(null, { status: 500 });
@@ -47,7 +47,7 @@ export async function POST(req: Request, res: Response) {
   });
 }
 
-export async function OPTIONS(req: Request, res: Response) {
+export async function OPTIONS() {
   return new Response(null, {
     status: 204,
     headers: {

@@ -2,30 +2,41 @@
   "name": "twitter-api",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "postinstall": "prisma generate"
+    "build": "prisma generate && next build",
+    "start": "node .next/standalone/server.js",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/session.test.ts"
   },
   "dependencies": {
-    "@prisma/client": "^5.12.0",
-    "@vercel/postgres": "^0.8.0",
-    "jose": "^5.2.3",
-    "next": "14.1.4",
-    "postgres": "^3.4.4",
-    "react": "^18",
-    "react-dom": "^18",
-    "zod": "^3.22.4"
+    "@fontsource/inter": "^5.3.0",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "jose": "^6.2.13",
+    "next": "16.4.3",
+    "pg": "^8.23.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "0.0.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "eslint": "^8",
-    "eslint-config-next": "14.1.4",
-    "prisma": "^5.12.0",
-    "typescript": "^5"
+    "@eslint/js": "^10.0.1",
+    "@next/eslint-plugin-next": "^16.4.3",
+    "@types/node": "^24",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "prisma": "7.10.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.0"
   }
 }
