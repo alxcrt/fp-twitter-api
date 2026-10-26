@@ -1,11 +1,11 @@
-FROM node:24.22.1-bookworm-slim AS build
+FROM node:26.12.1-bookworm-slim AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS=--max-old-space-size=2048
 COPY package*.json ./
 RUN npm ci --ignore-scripts --no-fund && npm audit --audit-level=moderate
 COPY . .
 RUN DATABASE_URL=postgresql://build:build@127.0.0.1:1/build npm run build
-FROM node:24.22.1-bookworm-slim AS runtime
+FROM node:26.12.1-bookworm-slim AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000
